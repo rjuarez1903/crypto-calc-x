@@ -29,6 +29,7 @@ function Calculator() {
       setCryptoData(response.data);
       setLastUpdated(new Date());
       handleReset();
+      setCurrency("usd");
     } catch (error) {
       console.error("Error fetching data: ", error);
     } finally {
