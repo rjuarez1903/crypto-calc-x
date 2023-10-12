@@ -16,7 +16,9 @@ export default defineConfig({
         short_name: "CryptoCalcX",
         name: "Crypto Calc X",
         start_url: "/",
+        id: "/",
         display: "standalone",
+        orientation: "portrait",
         theme_color: "#18181B",
         background_color: "#18181B",
         description:
@@ -33,6 +35,7 @@ export default defineConfig({
             src: "logo_crypto.png",
             type: "image/png",
             sizes: "512x512",
+            purpose: "any"
           },
           {
             src: "maskable_logo.png",
@@ -43,7 +46,21 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // opciones de workbox
+        runtimeCaching: [
+          {
+            urlPattern:
+              /^https:\/\/api\.coingecko\.com\/api\/v3\/simple\/price\?ids=bitcoin,ethereum&vs_currencies=usd,ars$/,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "crypto-rate-cache",
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24, 
+              },
+              networkTimeoutSeconds: 10, 
+            },
+          },
+        ],
       },
     }),
   ],

@@ -6,6 +6,8 @@
 
 body {
   @apply text-gray-200 font-roboto bg-night-sky;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .glass {

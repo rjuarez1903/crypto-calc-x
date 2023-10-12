@@ -23,18 +23,59 @@ function Calculator() {
   const fetchData = async () => {
     try {
       setLoading(true);
+      if (!navigator.onLine) {
+        const cachedData = await getCachedData(
+          "/simple/price?ids=bitcoin,ethereum&vs_currencies=usd,ars"
+        );
+        if (cachedData) {
+          setCryptoData(cachedData.data);
+          setLastUpdated(new Date(cachedData.lastUpdated));
+          handleReset();
+          setCurrency("usd");
+          return;
+        } else {
+          console.error("You're offline and the data isn't cached.");
+          return;
+        }
+      }
+
       const response = await axios.get(
         "simple/price?ids=bitcoin,ethereum&vs_currencies=usd,ars"
       );
       setCryptoData(response.data);
-      setLastUpdated(new Date());
+      const now = new Date();
+      setLastUpdated(now);
       handleReset();
       setCurrency("usd");
+
+      if ("caches" in window) {
+        const cache = await caches.open("crypto-rate-cache");
+        await cache.put(
+          "/simple/price?ids=bitcoin,ethereum&vs_currencies=usd,ars",
+          new Response(
+            JSON.stringify({
+              data: response.data,
+              lastUpdated: now,
+            })
+          )
+        );
+      }
     } catch (error) {
-      console.error("Error fetching data: ", error);
+      console.log("Error fetching data: ", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const getCachedData = async (url) => {
+    if ("caches" in window) {
+      const cache = await caches.open("crypto-rate-cache");
+      const cachedResponse = await cache.match(url);
+      if (cachedResponse && cachedResponse.ok) {
+        return cachedResponse.json();
+      }
+    }
+    return null;
   };
 
   const calculateCryptoValue = () => {
@@ -113,22 +154,36 @@ function Calculator() {
       ) : (
         <>
           <h2 className="text-4xl mb-4 font-bold">Current Rates in USD</h2>
-          <div className="flex justify-center items-center gap-3 mb-4">
-            <p className="text-sm text-gray-400">
-              Last updated: {lastUpdated.toLocaleTimeString()}{" "}
-              {lastUpdated.toLocaleDateString()}
-            </p>
-            <button onClick={fetchData}>
-              <IoReload className="mr-1" />
-            </button>
+          <div className="flex flex-col justify-center items-center gap-3 mb-4">
+            <div className="flex justify-center items-center gap-3">
+              <p className="text-sm text-gray-400">
+                Last updated: {lastUpdated.toLocaleTimeString()}{" "}
+                {lastUpdated.toLocaleDateString()}
+              </p>
+              {navigator.onLine && (
+                <button onClick={fetchData}>
+                  <IoReload className="mr-1" />
+                </button>
+              )}
+            </div>
+            {!navigator.onLine && (
+              <p className="text-sm text-red-400">
+                You're offline. Some features may not be available.
+              </p>
+            )}
           </div>
-          <div className="md:flex md:flex-row md:gap-2 mb-4 justify-center">
-            <div className="crypto-container flex items-center justify-between gap-3 text-3xl text-yellow-500">
-              <FaBitcoin />
+
+          <div className="md:flex md:flex-row md:gap-2 mb-4 justify-center md:w-[600px] md:mx-auto">
+            <div className="crypto-container flex flex-grow items-center justify-between gap-3 text-3xl text-yellow-500">
+              <div>
+                <FaBitcoin /> <p className="text-xs mt-1">BTC</p>
+              </div>
               <span>${cryptoData.bitcoin?.usd?.toLocaleString() || "N/A"}</span>
             </div>
-            <div className="crypto-container flex items-center justify-between gap-3 text-3xl text-blue-400">
-              <FaEthereum />
+            <div className="crypto-container flex flex-grow items-center justify-between gap-3 text-3xl text-blue-400">
+              <div>
+                <FaEthereum /> <p className="text-xs mt-1">ETH</p>
+              </div>
               <span>
                 ${cryptoData.ethereum?.usd?.toLocaleString() || "N/A"}
               </span>

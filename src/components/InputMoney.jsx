@@ -24,6 +24,7 @@ function InputMoney({ value, setValue }) {
       <span className="self-center text-white text-lg sm:text-2xl ps-2">$</span>
       <input
         type="text"
+        inputMode="decimal"
         value={value === "" ? "" : value} // Usar el valor formateado
         onChange={handleInputChange}
         className="flex-grow text-white bg-transparent text-lg sm:text-2xl p-2 outline-none focus:ring-0 truncate"
