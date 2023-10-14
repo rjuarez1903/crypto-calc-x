@@ -25,17 +25,21 @@ export default defineConfig({
           "CryptoCalcX is your go-to digital asset calculator, designed to effortlessly convert your fiat currency to its equivalent value in Bitcoin (BTC) and Ethereum (ETH).",
         screenshots: [
           {
-            src: "screenshot.png",
+            src: "screenshot_mobile_1.png",
             type: "image/png",
-            sizes: "1235x2646",
+            sizes: "1080x2220",
           },
+          {
+            src: "screenshot_mobile_2.png",
+            type: "image/png",
+            sizes: "1080x2220",
+          }
         ],
         icons: [
           {
             src: "logo_crypto.png",
             type: "image/png",
             sizes: "512x512",
-            purpose: "any"
           },
           {
             src: "maskable_logo.png",
