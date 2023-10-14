@@ -67,7 +67,7 @@ if (!self.define) {
     });
   };
 }
-define(['./workbox-16108a29'], (function (workbox) { 'use strict';
+define(['./workbox-67d91132'], (function (workbox) { 'use strict';
 
   self.addEventListener('message', event => {
     if (event.data && event.data.type === 'SKIP_WAITING') {
@@ -85,11 +85,19 @@ define(['./workbox-16108a29'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "index.html",
-    "revision": "0.t1qgeqb49ho"
+    "revision": "0.ae5h2st6cm"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
     allowlist: [/^\/$/]
   }));
+  workbox.registerRoute(/^https:\/\/api\.coingecko\.com\/api\/v3\/simple\/price\?ids=bitcoin,ethereum&vs_currencies=usd,ars$/, new workbox.NetworkFirst({
+    "cacheName": "crypto-rate-cache",
+    "networkTimeoutSeconds": 10,
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 50,
+      maxAgeSeconds: 86400
+    })]
+  }), 'GET');
 
 }));

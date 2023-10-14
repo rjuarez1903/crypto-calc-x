@@ -4,6 +4,8 @@ import { FaBitcoin, FaEthereum } from "react-icons/fa";
 import { IoReload } from "react-icons/io5";
 import InputMoney from "./InputMoney";
 import CurrencySelector from "./CurrencySelector";
+import CryptoCurrency from "./CryptoCurrency";
+import Output from "./Output";
 import axios from "../axiosConfig";
 
 function Calculator() {
@@ -19,6 +21,31 @@ function Calculator() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (displayInput && cryptoData.bitcoin && cryptoData.ethereum) {
+      const floatInput = parseFloat(displayInput.replace(/,/g, ""));
+      const btcPrice =
+        currency === "usd" ? cryptoData.bitcoin.usd : cryptoData.bitcoin.ars;
+      const ethPrice =
+        currency === "usd" ? cryptoData.ethereum.usd : cryptoData.ethereum.ars;
+      setCalculatedBTC(
+        (floatInput / btcPrice).toLocaleString(undefined, {
+          minimumFractionDigits: 6,
+          maximumFractionDigits: 6,
+        })
+      );
+      setCalculatedETH(
+        (floatInput / ethPrice).toLocaleString(undefined, {
+          minimumFractionDigits: 6,
+          maximumFractionDigits: 6,
+        })
+      );
+    } else {
+      setCalculatedBTC(null);
+      setCalculatedETH(null);
+    }
+  }, [currency, cryptoData, displayInput]);
 
   const fetchData = async () => {
     try {
@@ -109,31 +136,7 @@ function Calculator() {
     setDisplayInput("");
   };
 
-  useEffect(() => {
-    if (displayInput && cryptoData.bitcoin && cryptoData.ethereum) {
-      const floatInput = parseFloat(displayInput.replace(/,/g, ""));
-      const btcPrice =
-        currency === "usd" ? cryptoData.bitcoin.usd : cryptoData.bitcoin.ars;
-      const ethPrice =
-        currency === "usd" ? cryptoData.ethereum.usd : cryptoData.ethereum.ars;
-      setCalculatedBTC(
-        (floatInput / btcPrice).toLocaleString(undefined, {
-          minimumFractionDigits: 6,
-          maximumFractionDigits: 6,
-        })
-      );
-      setCalculatedETH(
-        (floatInput / ethPrice).toLocaleString(undefined, {
-          minimumFractionDigits: 6,
-          maximumFractionDigits: 6,
-        })
-      );
-    } else {
-      setCalculatedBTC(null);
-      setCalculatedETH(null);
-    }
-  }, [currency, cryptoData, displayInput]);
-
+  
   return (
     <div className="text-center text-white w-[900px] max-w-[900px]">
       {loading ? (
@@ -174,20 +177,18 @@ function Calculator() {
           </div>
 
           <div className="md:flex md:flex-row md:gap-2 mb-4 justify-center md:w-[600px] md:mx-auto">
-            <div className="crypto-container flex flex-grow items-center justify-between gap-3 text-3xl text-yellow-500">
-              <div>
-                <FaBitcoin /> <p className="text-xs mt-1">BTC</p>
-              </div>
-              <span>${cryptoData.bitcoin?.usd?.toLocaleString() || "N/A"}</span>
-            </div>
-            <div className="crypto-container flex flex-grow items-center justify-between gap-3 text-3xl text-blue-400">
-              <div>
-                <FaEthereum /> <p className="text-xs mt-1">ETH</p>
-              </div>
-              <span>
-                ${cryptoData.ethereum?.usd?.toLocaleString() || "N/A"}
-              </span>
-            </div>
+            <CryptoCurrency 
+              icon={<FaBitcoin />} 
+              name="BTC" 
+              price={cryptoData.bitcoin?.usd?.toLocaleString()}
+              textColor="text-yellow-500"
+            /> 
+            <CryptoCurrency 
+              icon={<FaEthereum />}
+              name="ETH"
+              price={cryptoData.ethereum?.usd?.toLocaleString()}
+              textColor="text-blue-400"
+            />
           </div>
 
           <div className="glass max-w-[600px] mx-auto">
@@ -213,22 +214,22 @@ function Calculator() {
             {(calculatedBTC || calculatedETH) && (
               <>
                 {calculatedBTC && (
-                  <div className="crypto-container text-2xl mt-4">
-                    <span className="text-white">
-                      ${displayInput} {currency.toUpperCase()} is worth{" "}
-                    </span>
-                    <span className="text-yellow-500">
-                      ${calculatedBTC} BTC
-                    </span>
-                  </div>
+                  <Output 
+                    input={displayInput}
+                    currency={currency}
+                    calculatedCurrency={calculatedBTC}
+                    calculatedCurrencyString="BTC"
+                    textColor={"text-yellow-500"}
+                  />
                 )}
                 {calculatedETH && (
-                  <div className="crypto-container text-2xl mt-4">
-                    <span className="text-white">
-                      ${displayInput} {currency.toUpperCase()} is worth{" "}
-                    </span>
-                    <span className="text-blue-400">${calculatedETH} ETH</span>
-                  </div>
+                  <Output 
+                    input={displayInput}
+                    currency={currency}
+                    calculatedCurrency={calculatedETH}
+                    calculatedCurrencyString="ETH"
+                    textColor={"text-blue-400"}
+                  />
                 )}
                 <button
                   onClick={handleReset}

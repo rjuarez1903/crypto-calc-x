@@ -1,5 +1,5 @@
 import logo from "/logo_crypto.png";
-import InstallButton from "./InstallButton"; 
+import InstallButton from "./InstallButton";
 
 function Header() {
   return (

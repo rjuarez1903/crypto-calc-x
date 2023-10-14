@@ -1,6 +1,5 @@
 import Header from "./Header";
 import Footer from "./Footer";
-import InstallButton from "./InstallButton";
 
 function Layout({ children }) {
   return (
